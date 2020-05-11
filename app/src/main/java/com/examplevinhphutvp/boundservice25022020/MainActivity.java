@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.strictmode.ServiceConnectionLeakedViolation;
 import android.view.View;
@@ -28,7 +29,11 @@ public class MainActivity extends AppCompatActivity {
         mBtnTinhtoan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String txtSt1 = mEdtst1.getText().toString();
+                String txtSt2 = mEdtst2.getText().toString();
                 Intent intent = new Intent(MainActivity.this,MyService.class);
+                intent.putExtra("st1",Integer.parseInt(txtSt1));
+                intent.putExtra("st2",Integer.parseInt(txtSt2));
                 bindService(intent,serviceConnection,BIND_AUTO_CREATE);
             }
         });
@@ -36,7 +41,18 @@ public class MainActivity extends AppCompatActivity {
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            MyService.MyBinder myBinder = (MyService.MyBinder) service ;
+            final MyService.MyBinder myBinder = (MyService.MyBinder) service ;
+            final Handler handler = new Handler();
+                   handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (myBinder.getService().getKetqua()>-1){
+                        Toast.makeText(MainActivity.this,myBinder.getService().getKetqua()+"" ,Toast.LENGTH_SHORT).show();
+                    }else {
+                        handler.postDelayed(this,1000);
+                    }
+                }
+            },100);
             Toast.makeText(MainActivity.this,"Connected",Toast.LENGTH_SHORT).show();
         }
 
